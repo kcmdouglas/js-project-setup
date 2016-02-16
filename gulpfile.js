@@ -4,6 +4,9 @@ var concat = require('gulp-concat');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
+var del = require('del');
+var utilities = require('gulp-util');
+var buildProduction = utilities.env.production;
 var lib = require('bower-files')({
   "overrides":{
     "bootstrap" : {
@@ -14,7 +17,7 @@ var lib = require('bower-files')({
       ]
     }
   }
-})
+});
 
 gulp.task('jshint', function() {
   return gulp.src(['js/*.js', 'spec/*.js', '*.js'])
@@ -55,3 +58,16 @@ gulp.task('cssBower', function() {
 });
 
 gulp.task('bower', ['jsBower', 'cssBower']);
+
+gulp.task('clean', function() {
+  return del(['build', 'tmp']);
+});
+
+gulp.task('build', ['clean'], function() {
+  if (buildProduction) {
+    gulp.start('minifyScripts');
+  } else {
+    gulp.start('jsBrowserify');
+  }
+  gulp.start('bower');
+});
