@@ -4,6 +4,17 @@ var concat = require('gulp-concat');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
+var lib = require('bower-files')({
+  "overrides":{
+    "bootstrap" : {
+      "main" : [
+        "less/bootstrap.less",
+        "dist/css/bootstrap.css",
+        "dist/js/bootstrap.js"
+      ]
+    }
+  }
+})
 
 gulp.task('jshint', function() {
   return gulp.src(['js/*.js', 'spec/*.js', '*.js'])
@@ -29,3 +40,18 @@ gulp.task('minifyScripts', ['jsBrowserify'], function() {
     .pipe(uglify())
     .pipe(gulp.dest('./build/js'));
 });
+
+gulp.task('jsBower', function () {
+  return gulp.src(lib.ext('js').files)
+    .pipe(concat('vendor.min.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('./build/js'));
+});
+
+gulp.task('cssBower', function() {
+  return gulp.src(lib.ext('css').files)
+    .pipe(concat('vendor.css'))
+    .pipe(gulp.dest('./build/css'));
+});
+
+gulp.task('bower', ['jsBower', 'cssBower']);

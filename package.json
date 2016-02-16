@@ -5,6 +5,7 @@
   "main": "gulpfile.js",
   "dependencies": {},
   "devDependencies": {
+    "bower-files": "^3.11.3",
     "gulp-uglify": "^1.5.2"
   },
   "scripts": {
