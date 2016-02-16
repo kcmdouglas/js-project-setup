@@ -6,6 +6,7 @@
   "dependencies": {},
   "devDependencies": {
     "bower-files": "^3.11.3",
+    "browser-sync": "^2.11.1",
     "del": "^2.2.0",
     "gulp-uglify": "^1.5.2",
     "gulp-util": "^3.0.7"
