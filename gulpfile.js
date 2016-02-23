@@ -4,6 +4,8 @@ var concat = require('gulp-concat');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
+var sass = require('gulp-sass');
+var sourcemaps = require('gulp-sourcemaps');
 var del = require('del');
 var utilities = require('gulp-util');
 var buildProduction = utilities.env.production;
@@ -31,7 +33,7 @@ var browserSyncTestServe = require('browser-sync').create();
 gulp.task('jshint', function() {
   return gulp.src(['js/*.js', 'spec/*.js', '*.js'])
     .pipe(jshint())
-    .pipe(jshint.reporter('default'));
+    .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('concatInterface', function() {
@@ -66,7 +68,15 @@ gulp.task('cssBower', function() {
     .pipe(gulp.dest('./build/css'));
 });
 
-gulp.task('bowerProduction', ['jsBower', 'cssBower']);
+gulp.task('bower', ['jsBower', 'cssBower']);
+
+gulp.task('cssBuild', function() {
+  return gulp.src('scss/*.scss')
+    .pipe(sourcemaps.init())
+    .pipe(sass())
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('./build/css'));
+});
 
 gulp.task('clean', function() {
   return del(['build', 'tmp']);
@@ -78,7 +88,8 @@ gulp.task('build', ['clean'], function() {
   } else {
     gulp.start('jsBrowserify');
   }
-  gulp.start('bowerProduction');
+  gulp.start('bower');
+  gulp.start('cssBuild');
 });
 
 gulp.task('serve', function() {
@@ -92,6 +103,7 @@ gulp.task('serve', function() {
   gulp.watch(['js/*.js'], ['jsBuild']);
   gulp.watch(['bower.json'], ['bowerBuild']);
   gulp.watch(['*.html'], ['htmlBuild']);
+  gulp.watch(['scss/*.scss'], ['cssBuild']);
 });
 
 gulp.task('jsBuild', ['jsBrowserify', 'jshint'], function() {
@@ -104,20 +116,4 @@ gulp.task('bowerBuild', ['bowerProduction'], function() {
 
 gulp.task('htmlBuild', function() {
   browserSyncServe.reload();
-});
-
-gulp.task('testServe', function() {
-  browserSyncTestServe.init({
-    server: {
-      baseDir: './',
-      index: '/spec/spec-runner.html'
-    }
-  });
-
-  gulp.watch(['js/*.js'], ['jsBuild']);
-  gulp.watch(['spec/specs.js', 'spec/spec-runner.html'], ['specBuild']);
-});
-
-gulp.task('specBuild', function() {
-  browserSyncTestServe.reload();
 });
